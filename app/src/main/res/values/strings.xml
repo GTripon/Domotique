@@ -103,4 +103,26 @@
     <string name="traffic_show_more">Tout afficher</string>
     <string name="traffic_show_less">Réduire la liste</string>
     <string name="traffic_empty">Aucune trame n\'a encore été échangée avec la passerelle</string>
+
+    <!-- diagnostics, bas de carte -->
+    <string name="settings_link_diag">Diagnostics de la session</string>
+    <string name="settings_traffic_diag">Ce qui est parti, ce qui est revenu</string>
+    <string name="settings_traffic_last_sent">Dernière trame envoyée</string>
+    <string name="settings_traffic_last_received">Dernière trame reçue</string>
+    <string name="settings_buswatch_diag">Adresses entendues depuis le démarrage</string>
+    <string name="settings_editor_diag">Adresse utilisée pour ce volet</string>
+    <string name="settings_add_diag">Adresse du volet créé</string>
+    <string name="settings_log_diag">Contenu du journal</string>
+
+    <!-- ecran principal -->
+    <string name="main_general_title">Tous les volets</string>
+    <string name="main_general_hint">Commande groupée : chaque adresse reçoit son propre ordre, les adresses non définies sont sautées.</string>
+    <string name="main_general_dry_run">Mode essai actif : les trames sont affichées dans la console, rien n\'est envoyé sur le bus.</string>
+    <string name="main_general_diag">Résultat de la dernière commande groupée</string>
+    <string name="main_volet_diag">Adresse et dernier échange de ce volet</string>
+    <string name="main_send_position">Envoyer cette position</string>
+    <string name="main_auto_stop">%1$s · arrêt automatique prévu après la course</string>
+    <string name="main_last_frame_out">Trame envoyée</string>
+    <string name="main_last_frame_in">Trame reçue</string>
+    <string name="main_no_frame_yet">Aucune trame échangée avec cette adresse</string>
 </resources>
