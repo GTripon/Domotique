@@ -104,11 +104,6 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
 
         Spacer(Modifier.height(6.dp))
 
-        // --------------------------------- derniere trame partiel / reponse recue
-        LastExchangeBand(status.gateway)
-
-        Spacer(Modifier.height(8.dp))
-
         // --------------------------------------------------- commandes groupe
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(onClick = repository::allUp, modifier = Modifier.weight(1f)) {
@@ -127,7 +122,7 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
         // ------------------------------------------------------------ volets
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.weight(1f),
         ) {
             items(volets, key = { it.id }) { shutter ->
                 VoletCard(
@@ -152,12 +147,17 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
                 )
             }
         }
+
+        Spacer(Modifier.height(8.dp))
+
+        // --------------------------------- derniere trame partiel / reponse recue
+        LastExchangeBand(status.gateway)
     }
 }
 
 /** Puce "connecte / deconnecte" de l'entete. */
 /**
- * Bandeau du haut : la derniere trame ecrite sur le port 20000 et ce que la
+ * Bandeau du bas : la derniere trame ecrite sur le port 20000 et ce que la
  * passerelle a renvoye en face.
  *
  * Cette passerelle ne repond pas dans la seconde : elle garde les trames puis
