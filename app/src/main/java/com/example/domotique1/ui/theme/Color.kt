@@ -15,7 +15,7 @@ val NeonMagenta = Color(0xFFE93DB2)
 val NeonViolet = Color(0xFF8B5CF6)
 val NeonAmber = Color(0xFFFFB020)
 val NeonLime = Color(0xFFA3E635)
-val NeonRed = Color(0xFFFF4D6D)
+val NeonRed = Color(0xE58B5CF6)
 
 // Textes.
 val PaperWhite = Color(0xFFF2F7FF)

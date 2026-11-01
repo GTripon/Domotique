@@ -1,6 +1,7 @@
 package com.example.domotique1.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,7 +22,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +44,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -81,6 +81,7 @@ import kotlinx.coroutines.delay
  * Toutes les donnees viennent de [VoletsRepository] (StateFlow) : elles restent
  * justes quand on tourne l'ecran ou quand on va dans les reglages.
  */
+
 @Composable
 fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
     val volets by repository.volets.collectAsState()
@@ -102,6 +103,8 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
 
         // ------------------------------------------------ entete + connexion
         Row(verticalAlignment = Alignment.CenterVertically) {
+            AppLogoBadge()
+            Spacer(Modifier.width(10.dp))
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
@@ -114,25 +117,45 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
                 Text(stringResource(R.string.settings_title))
             }
         }
-        Text(
+        /*Text(
             text = status.detail,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
+        )*/
 
-        Spacer(Modifier.height(6.dp))
+        Spacer(Modifier.height(4.dp))
 
         // --------------------------------------------------- commandes groupe
+        // memes touches que les cartes : MONTER / STOP / DESCENDRE, en groupe
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            OutlinedButton(onClick = repository::allUp, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.main_all_up))
-            }
-            OutlinedButton(onClick = repository::allDown, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.main_all_down))
-            }
-            Button(onClick = repository::allStop, modifier = Modifier.weight(1f)) {
-                Text(stringResource(R.string.main_all_stop))
-            }
+            NeonKeyButton(
+                glyph = "▲",
+                label = stringResource(R.string.main_all_up),
+                accent = NeonTurquoise,
+                sending = false,
+                enabled = true,
+                onClick = repository::allUp,
+                modifier = Modifier.weight(1f),
+            )
+            NeonKeyButton(
+                glyph = "■",
+                label = stringResource(R.string.main_all_stop),
+                accent = NeonRed,
+                sending = false,
+                enabled = true,
+                filled = true,
+                onClick = repository::allStop,
+                modifier = Modifier.weight(1f),
+            )
+            NeonKeyButton(
+                glyph = "▼",
+                label = stringResource(R.string.main_all_down),
+                accent = NeonCyan,
+                sending = false,
+                enabled = true,
+                onClick = repository::allDown,
+                modifier = Modifier.weight(1f),
+            )
         }
 
         Spacer(Modifier.height(8.dp))
@@ -202,6 +225,27 @@ private fun ConnectionPill(status: UiStatus) {
                 fontWeight = FontWeight.SemiBold,
             )
         }
+    }
+}
+
+/** Petit rappel du logo de l'application, affiche au debut de l'entete. */
+@Composable
+private fun AppLogoBadge() {
+    val shape = RoundedCornerShape(12.dp)
+    Box(
+        modifier = Modifier
+            .size(38.dp)
+            .clip(shape)
+            .background(Brush.verticalGradient(listOf(InkPanel, InkInner)))
+            .border(BorderStroke(1.dp, NeonCyan.copy(alpha = 0.5f)), shape)
+            .neonShadow(4.dp, NeonCyan, enabled = true),
+        contentAlignment = Alignment.Center,
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null,
+            modifier = Modifier.size(30.dp),
+        )
     }
 }
 
@@ -381,7 +425,7 @@ private fun VoletCard(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .neonShadow(14.dp, accent, enabled = glow)
+            .neonShadow(10.dp, accent, enabled = glow)
             .clip(shape)
             .background(Brush.linearGradient(listOf(InkPanel, InkInner)))
             .border(BorderStroke(1.dp, accent.copy(alpha = if (glow) 0.9f else 0.35f)), shape)
@@ -445,8 +489,8 @@ private fun VoletCard(
                 }
             }
 
-            Spacer(Modifier.height(12.dp))
-
+            Spacer(Modifier.height(8.dp))
+            /*
             // ------------------------------------------- jauge + position visee
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -509,14 +553,15 @@ private fun VoletCard(
                     }
                 }
             }
-
+            */
             // ---------------------------------------------------- commandes
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+
                 NeonKeyButton(
                     glyph = "▲",
                     label = stringResource(R.string.volet_move_up),
-                    accent = accent,
+                    accent = NeonTurquoise,
                     sending = sending,
                     enabled = shutter.configured,
                     onClick = { onMove(OwnMovement.UP) },
@@ -525,7 +570,7 @@ private fun VoletCard(
                 NeonKeyButton(
                     glyph = "■",
                     label = stringResource(R.string.volet_move_stop),
-                    accent = accent,
+                    accent = NeonRed,
                     sending = sending,
                     enabled = shutter.configured,
                     filled = true,
@@ -535,7 +580,7 @@ private fun VoletCard(
                 NeonKeyButton(
                     glyph = "▼",
                     label = stringResource(R.string.volet_move_down),
-                    accent = accent,
+                    accent = NeonCyan,
                     sending = sending,
                     enabled = shutter.configured,
                     onClick = { onMove(OwnMovement.DOWN) },
