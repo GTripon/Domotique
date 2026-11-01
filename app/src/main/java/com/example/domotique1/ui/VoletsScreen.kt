@@ -1,11 +1,15 @@
 package com.example.domotique1.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -16,14 +20,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -39,13 +41,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.domotique1.R
+import com.example.domotique1.ui.theme.InkInner
+import com.example.domotique1.ui.theme.InkNight
+import com.example.domotique1.ui.theme.InkPanel
+import com.example.domotique1.ui.theme.NeonAmber
+import com.example.domotique1.ui.theme.NeonCyan
+import com.example.domotique1.ui.theme.NeonRed
+import com.example.domotique1.ui.theme.NeonTurquoise
+import com.example.domotique1.ui.theme.PaperDim
+import com.example.domotique1.ui.theme.PaperFaint
+import com.example.domotique1.ui.theme.PaperWhite
 import kotlin.math.roundToInt
 import com.example.domotique1.data.Shutter
 import com.example.domotique1.data.ShutterState
@@ -88,6 +105,7 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
             Text(
                 text = stringResource(R.string.app_name),
                 style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
             )
             ConnectionPill(status)
@@ -121,7 +139,7 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
 
         // ------------------------------------------------------------ volets
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
             modifier = Modifier.weight(1f),
         ) {
             items(volets, key = { it.id }) { shutter ->
@@ -155,7 +173,38 @@ fun VoletsScreen(repository: VoletsRepository, onSettings: () -> Unit) {
     }
 }
 
-/** Puce "connecte / deconnecte" de l'entete. */
+/** Puce "connecte / deconnecte" de l'entete, facon console : pastille + lueur. */
+@Composable
+private fun ConnectionPill(status: UiStatus) {
+    val color = if (status.connected) NeonTurquoise else NeonAmber
+    val shape = CircleShape
+    Box(
+        modifier = Modifier
+            .clip(shape)
+            .background(color.copy(alpha = 0.10f))
+            .border(BorderStroke(1.dp, color.copy(alpha = 0.5f)), shape)
+            .padding(horizontal = 10.dp, vertical = 5.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                Modifier
+                    .size(9.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+            Spacer(Modifier.width(6.dp))
+            Text(
+                text = stringResource(
+                    if (status.connected) R.string.volet_connected else R.string.status_disconnected
+                ),
+                fontSize = 12.sp,
+                color = color,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
 /**
  * Bandeau du bas : la derniere trame ecrite sur le port 20000 et ce que la
  * passerelle a renvoye en face.
@@ -176,12 +225,21 @@ private fun LastExchangeBand(gateway: GatewayStatus) {
         }
     }
 
-    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(horizontal = 10.dp, vertical = 8.dp)) {
+    val shape = RoundedCornerShape(16.dp)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape)
+            .background(InkPanel.copy(alpha = 0.85f))
+            .border(BorderStroke(1.dp, NeonCyan.copy(alpha = 0.25f)), shape)
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+    ) {
+        Column(Modifier.fillMaxWidth()) {
             Text(
                 text = stringResource(R.string.main_last_exchange),
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold,
+                color = PaperDim,
             )
             Spacer(Modifier.height(4.dp))
 
@@ -197,6 +255,7 @@ private fun LastExchangeBand(gateway: GatewayStatus) {
                         text = ">>  " + gateway.lastSentFrame,
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = FontFamily.Monospace,
+                        color = PaperWhite,
                         modifier = Modifier.weight(1f),
                     )
                     Text(
@@ -215,7 +274,7 @@ private fun LastExchangeBand(gateway: GatewayStatus) {
             }
 
             Spacer(Modifier.height(4.dp))
-            HorizontalDivider()
+            HorizontalDivider(color = PaperFaint.copy(alpha = 0.25f))
             Spacer(Modifier.height(4.dp))
 
             if (gateway.lastAnswerFrame.isEmpty()) {
@@ -235,9 +294,9 @@ private fun LastExchangeBand(gateway: GatewayStatus) {
                         style = MaterialTheme.typography.bodyMedium,
                         fontFamily = FontFamily.Monospace,
                         color = when {
-                            gateway.lastAnswerIsNack -> Color(0xFFD32F2F)
-                            notReply -> Color(0xFF616161)
-                            else -> Color(0xFF2E7D32)
+                            gateway.lastAnswerIsNack -> NeonRed
+                            notReply -> PaperFaint
+                            else -> NeonTurquoise
                         },
                         modifier = Modifier.weight(1f),
                     )
@@ -298,39 +357,12 @@ private fun durationText(totalSeconds: Long): String {
 private fun latencyText(ms: Long): String =
     if (ms < 1000) "$ms ms" else "${(ms / 100.0).roundToInt() / 10.0} s"
 
-@Composable
-private fun ConnectionPill(status: UiStatus) {
-    val color = if (status.connected) Color(0xFF2E7D32) else Color(0xFFB26A00)
-    Card(
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.14f)),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                Modifier
-                    .size(9.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
-            Spacer(Modifier.width(6.dp))
-            Text(
-                text = stringResource(
-                    if (status.connected) R.string.volet_connected else R.string.status_disconnected
-                ),
-                fontSize = 12.sp,
-                color = color,
-                fontWeight = FontWeight.SemiBold,
-            )
-        }
-    }
-}
-
 /**
- * Une carte par volet : nom, piece, adresse bus, etat, barre de position et
- * les trois commandes. Le chevron de la barre de position ouvre le curseur
- * qui permet de viser un pourcentage.
+ * Carte d'un volet, facon pupitre de commande : fond decale en gradient,
+ * bordure et lueur couleur etat, grande position en chiffres monospace,
+ * touches MONTER / STOP / DESCENDRE.
+ *
+ * Le bouton POSITION ouvre le curseur qui permet de viser un pourcentage.
  */
 @Composable
 private fun VoletCard(
@@ -343,72 +375,115 @@ private fun VoletCard(
     onPercent: (Int) -> Unit,
 ) {
     val accent = colorFor(state.action, state.isMoving)
+    val glow = state.isMoving || sending
+    val shape = RoundedCornerShape(20.dp)
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHigh),
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .neonShadow(14.dp, accent, enabled = glow)
+            .clip(shape)
+            .background(Brush.linearGradient(listOf(InkPanel, InkInner)))
+            .border(BorderStroke(1.dp, accent.copy(alpha = if (glow) 0.9f else 0.35f)), shape)
+            .padding(14.dp),
     ) {
-        Column(Modifier.padding(12.dp)) {
+        Column {
             // --------------------------------------------------- titre carte
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                     Modifier
-                        .size(12.dp)
+                        .size(10.dp)
                         .clip(CircleShape)
                         .background(accent)
                 )
-                Spacer(Modifier.width(10.dp))
+                Spacer(Modifier.width(12.dp))
                 Column(Modifier.weight(1f)) {
                     Text(
                         text = shutter.name,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
+                        color = PaperWhite,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                     Text(
                         text = shutterInfo(shutter),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = PaperFaint,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
                     )
                 }
-                if (sending) {
-                    CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-                    Spacer(Modifier.width(8.dp))
+                Spacer(Modifier.width(8.dp))
+                // puce d'etat : mouvement en cours, avec spinner pendant l'envoi
+                val chipShape = CircleShape
+                Box(
+                    modifier = Modifier
+                        .clip(chipShape)
+                        .background(accent.copy(alpha = 0.12f))
+                        .border(BorderStroke(1.dp, accent.copy(alpha = 0.45f)), chipShape)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        if (sending) {
+                            CircularProgressIndicator(
+                                Modifier.size(12.dp),
+                                strokeWidth = 1.5.dp,
+                                color = accent,
+                            )
+                        }
+                        Text(
+                            text = movementLabel(state.action),
+                            color = accent,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            letterSpacing = 1.sp,
+                        )
+                    }
                 }
-                Text(
-                    text = movementLabel(state.action),
-                    color = accent,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 12.sp,
-                )
             }
 
-            Spacer(Modifier.height(10.dp))
+            Spacer(Modifier.height(12.dp))
 
-            // ------------------------------------------------- barre position
-            PositionBar(
-                percent = state.positionPercent,
-                moving = state.isMoving,
-                color = accent,
-            )
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = stringResource(R.string.volet_position),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            // ------------------------------------------- jauge + position visee
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Column(
                     modifier = Modifier.weight(1f),
-                )
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = stringResource(R.string.volet_position).uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = PaperFaint,
+                        letterSpacing = 1.5.sp,
+                    )
+                    ShutterGauge(percent = state.positionPercent, moving = state.isMoving, color = accent)
+                }
+                PositionDigits(percent = state.positionPercent, color = accent)
+            }
+
+            // ------------------------------------------------- curseur position
+            Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
                 TextButton(onClick = onTogglePosition) {
                     Text(
-                        text = if (showPosition) "-" else "+",
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Bold,
+                        text = (if (showPosition) "- " else "+ ") +
+                            stringResource(R.string.volet_position).uppercase(),
+                        fontSize = 11.sp,
+                        letterSpacing = 1.sp,
+                        color = if (showPosition) accent else PaperDim,
                     )
                 }
             }
 
             if (showPosition) {
                 var target by remember(shutter.id) {
-                    mutableFloatStateOf(state.currentPercent().toFloat())
+                    // position inconnue (-1) : on part de 0 pour rester dans la plage du curseur
+                    mutableFloatStateOf(state.currentPercent().coerceAtLeast(0).toFloat())
                 }
                 Text(
                     text = stringResource(R.string.main_target, target.roundToInt()),
@@ -438,21 +513,30 @@ private fun VoletCard(
             // ---------------------------------------------------- commandes
             Spacer(Modifier.height(10.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                UpDownButton(
+                NeonKeyButton(
+                    glyph = "▲",
                     label = stringResource(R.string.volet_move_up),
+                    accent = accent,
+                    sending = sending,
                     enabled = shutter.configured,
                     onClick = { onMove(OwnMovement.UP) },
                     modifier = Modifier.weight(1f),
                 )
-                Button(
-                    onClick = { onMove(OwnMovement.STOP) },
+                NeonKeyButton(
+                    glyph = "■",
+                    label = stringResource(R.string.volet_move_stop),
+                    accent = accent,
+                    sending = sending,
                     enabled = shutter.configured,
+                    filled = true,
+                    onClick = { onMove(OwnMovement.STOP) },
                     modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.volet_move_stop))
-                }
-                UpDownButton(
+                )
+                NeonKeyButton(
+                    glyph = "▼",
                     label = stringResource(R.string.volet_move_down),
+                    accent = accent,
+                    sending = sending,
                     enabled = shutter.configured,
                     onClick = { onMove(OwnMovement.DOWN) },
                     modifier = Modifier.weight(1f),
@@ -463,7 +547,7 @@ private fun VoletCard(
                 Spacer(Modifier.height(6.dp))
                 Text(
                     text = stringResource(R.string.volet_not_configured),
-                    color = MaterialTheme.colorScheme.error,
+                    color = NeonRed,
                     fontSize = 12.sp,
                 )
             }
@@ -471,63 +555,110 @@ private fun VoletCard(
     }
 }
 
+/**
+ * Jauge fine de position : 0 % = volet ouvert (remonte), 100 % = volet ferme
+ * (descendu). Barre vide balisee "?" quand la position n'est pas connue,
+ * trait lumineux plus pale quand le volet bouge.
+ */
 @Composable
-private fun UpDownButton(
-    label: String,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    OutlinedButton(onClick = onClick, enabled = enabled, modifier = modifier) {
-        Text(label, fontWeight = FontWeight.SemiBold)
+private fun ShutterGauge(percent: Int, moving: Boolean, color: Color) {
+    val shape = RoundedCornerShape(4.dp)
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(10.dp)
+            .clip(shape)
+            .background(Color.Black.copy(alpha = 0.45f))
+            .border(BorderStroke(1.dp, color.copy(alpha = 0.35f)), shape),
+    ) {
+        if (percent >= 0) {
+            Box(
+                Modifier
+                    .fillMaxWidth(percent.coerceIn(0, 100) / 100f)
+                    .fillMaxHeight()
+                    .background(if (moving) color.copy(alpha = 0.45f) else color)
+            )
+        }
     }
 }
 
-/**
- * Barre de position : 0 % = volet ouvert (remonte), 100 % = volet ferme (descendu).
- * Barre pointillee quand la position n'est pas connue, hachuree quand le volet bouge.
- */
+/** Position du volet en grands chiffres monospace, "--" si elle est inconnue. */
 @Composable
-private fun PositionBar(percent: Int, moving: Boolean, color: Color) {
-    OutlinedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+private fun PositionDigits(percent: Int, color: Color) {
+    Text(
+        text = if (percent < 0) "--" else "$percent",
+        fontSize = 34.sp,
+        fontWeight = FontWeight.Bold,
+        fontFamily = FontFamily.Monospace,
+        color = if (percent < 0) PaperFaint else color,
+        modifier = Modifier.neonShadow(6.dp, color, enabled = percent >= 0),
+    )
+}
+
+/** Touche de commande facon pupitre : glyph + libelle, lueur quand elle est armee. */
+@Composable
+private fun NeonKeyButton(
+    glyph: String,
+    label: String,
+    accent: Color,
+    sending: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    filled: Boolean = false,
+) {
+    val shape = RoundedCornerShape(12.dp)
+    val textColor = when {
+        !enabled -> PaperFaint
+        filled -> InkNight
+        else -> accent
+    }
+    Box(
+        modifier = modifier
+            .neonShadow(8.dp, accent, enabled = enabled && filled)
+            .clip(shape)
+            .background(
+                when {
+                    !enabled -> Color.White.copy(alpha = 0.04f)
+                    filled -> accent
+                    else -> accent.copy(alpha = 0.08f)
+                }
+            )
+            .border(BorderStroke(1.dp, accent.copy(alpha = if (enabled) 0.5f else 0.15f)), shape)
+            .clickable(enabled = enabled) { onClick() }
+            .padding(vertical = 12.dp),
+        contentAlignment = Alignment.Center,
     ) {
-        Box(Modifier.fillMaxSize()) {
-            if (percent < 0) {
+        if (sending) {
+            CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = textColor)
+        } else {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(glyph, fontSize = 13.sp, color = textColor)
                 Text(
-                    text = stringResource(R.string.volet_unknown),
-                    fontSize = 10.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.align(Alignment.Center).padding(horizontal = 6.dp),
-                )
-            } else {
-                Box(
-                    Modifier
-                        .fillMaxWidth(percent.coerceIn(0, 100) / 100f)
-                        .fillMaxSize()
-                        .background(if (moving) color.copy(alpha = 0.45f) else color)
-                )
-                Text(
-                    text = "$percent %",
-                    fontSize = 10.sp,
+                    text = label,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.align(Alignment.CenterEnd).padding(end = 6.dp),
+                    letterSpacing = 1.sp,
+                    color = textColor,
                 )
             }
         }
     }
 }
 
-/** couleur de l'etat : en mouvement = orange, sinon couleur du dernier ordre recu. */
+/** Ombre coloree facon neon : disparait completement quand [enabled] est faux. */
+private fun Modifier.neonShadow(elevation: Dp, color: Color, enabled: Boolean): Modifier =
+    if (!enabled) this else shadow(elevation, ambientColor = color, spotColor = color)
+
+/** couleur de l'etat : en mouvement = ambre, sinon teinte du dernier ordre recu. */
 private fun colorFor(action: OwnMovement, moving: Boolean): Color = when {
-    moving -> Color(0xFFB26A00)
-    action == OwnMovement.UP -> Color(0xFF2E7D32)
-    action == OwnMovement.DOWN -> Color(0xFF1565C0)
-    else -> Color(0xFF6B7280)
+    moving -> NeonAmber
+    action == OwnMovement.UP -> NeonTurquoise
+    action == OwnMovement.DOWN -> NeonCyan
+    else -> PaperFaint
 }
 
 /** ligne d'information sous le nom : piece + adresse bus + temps de course. */
